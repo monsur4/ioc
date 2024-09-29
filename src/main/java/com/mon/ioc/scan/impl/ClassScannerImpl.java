@@ -18,6 +18,12 @@ public class ClassScannerImpl implements ClassScanner {
         return classDefinitions;
     }
 
+    public ClassDefinition getClassDefinition(Class<?> clazz) {
+        return new ClassDefinition()
+                .setType(ClassDefinition.TYPE.SINGLETON)
+                .setFullClassName(clazz.getCanonicalName());
+    }
+
     public ClassScannerImpl() {
         classDefinitions = new HashSet<>();
     }
@@ -26,9 +32,6 @@ public class ClassScannerImpl implements ClassScanner {
     public void scan(Class<?> startUpClass) {
         String directory = startUpClass.getProtectionDomain().getCodeSource().getLocation().getFile();
         File file = new File(directory);
-
-        System.out.println("directory = " + directory);
-
         scanDir(file, "");
     }
 
@@ -41,9 +44,10 @@ public class ClassScannerImpl implements ClassScanner {
                     scanDir(f, rootPackageName + pkg + ".");
                 }else{
                     String leafFile = rootPackageName + f.getName();
+                    if(leafFile.contains("Main.class")) continue;
                     ClassDefinition classDefinition = new ClassDefinition()
                             .setType(ClassDefinition.TYPE.SINGLETON)
-                            .setFullClassName(leafFile);
+                            .setFullClassName(leafFile.replace(".class", ""));
                     classDefinitions.add(classDefinition);
                 }
             }
