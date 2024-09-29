@@ -1,9 +1,11 @@
 package com.mon;
 
-import com.mon.ioc.scan.ClassDefinition;
+import com.mon.ioc.container.IOCContainer;
+import com.mon.ioc.container.impl.IOCContainerImpl;
 import com.mon.ioc.scan.impl.ClassScannerImpl;
-
-import java.util.Set;
+import com.mon.ioc.service.ObjectCreator;
+import com.mon.ioc.service.impl.ObjectCreatorImpl;
+import com.mon.ioc.test.TestClassOne;
 
 /**
  * create an ioc container that:
@@ -11,23 +13,25 @@ import java.util.Set;
  * inject objects (singleton and prototype scoped)
  */
 public class Main {
-    public static void main(String[] args) {
-        // create container
-
+    public static void main(String[] args) throws ClassNotFoundException {
         // do a component scan
         ClassScannerImpl classScanner = new ClassScannerImpl();
-        classScanner.scan(Main.class);
-        Set<ClassDefinition> classDefinitions = classScanner.getClassDefinitions();
-        for (ClassDefinition classDefinition : classDefinitions) {
-            System.out.println("classDefinition = " + classDefinition);
-        }
+
         // create the objects (single and prototype) => Object creation service
+        ObjectCreator objectCreator = new ObjectCreatorImpl();
 
-        // inject them
+        // create container
+        IOCContainer container = new IOCContainerImpl(classScanner, objectCreator, Main.class);
 
-        // see if they are properly injected
+        // TODO: inject them
 
-        // write tests
-        System.out.println("Hello world!");
+        // TODO: see if they are properly injected
+
+        // retrieve objects of a class type
+        TestClassOne object1 = (TestClassOne) container.getObject(TestClassOne.class);
+        TestClassOne object2 = (TestClassOne) container.getObject(TestClassOne.class);
+        if(object1.equals(object2)) System.out.println("Singleton");
+
+        // TODO: write tests
     }
 }
