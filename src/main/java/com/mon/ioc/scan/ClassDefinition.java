@@ -1,5 +1,8 @@
 package com.mon.ioc.scan;
 
+/**
+ * this class defines stores the details about a class's definition
+ */
 public class ClassDefinition {
     private String fullClassName;
     private TYPE type = TYPE.SINGLETON;
