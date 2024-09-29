@@ -29,15 +29,21 @@ public class ObjectCreatorImpl implements ObjectCreator {
             }
         }
 
-        Object o;
+        Object o = null;
         try {
             Class<?> clazz = Class.forName(classDefinition.fullClassName());
-            Constructor<?> constructor = clazz.getConstructors()[0];
-            constructor.setAccessible(true);
-            o = constructor.newInstance();
-            if(classDefinition.type() == ClassDefinition.TYPE.SINGLETON){
-                singletons.put(classDefinition.fullClassName(), o);
+            Constructor[] constructors = clazz.getConstructors();
+            for (Constructor constructor: constructors){
+                if(constructor.getParameterCount() == 0){
+                    constructor.setAccessible(true);
+                    logger.log(Level.INFO, String.format("creating class %s", classDefinition.fullClassName()));
+                    o = constructor.newInstance();
+                    if(classDefinition.type() == ClassDefinition.TYPE.SINGLETON){
+                        singletons.put(classDefinition.fullClassName(), o);
+                    }
+                }
             }
+
         } catch (ClassNotFoundException | InvocationTargetException | InstantiationException | IllegalAccessException e) {
             throw new RuntimeException(e);
         }
