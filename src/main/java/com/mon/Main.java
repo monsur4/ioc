@@ -2,6 +2,7 @@ package com.mon;
 
 import com.mon.ioc.container.IOCContainer;
 import com.mon.ioc.container.impl.IOCContainerImpl;
+import com.mon.ioc.scan.ClassScanner;
 import com.mon.ioc.scan.impl.ClassScannerImpl;
 import com.mon.ioc.service.ObjectCreator;
 import com.mon.ioc.service.impl.ObjectCreatorImpl;
@@ -31,6 +32,10 @@ public class Main {
         TestClassOne object1 = (TestClassOne) container.getObject(TestClassOne.class);
         TestClassOne object2 = (TestClassOne) container.getObject(TestClassOne.class);
         if(object1.equals(object2)) System.out.println("Singleton");
+
+        // retrieving by type
+        ClassScanner object3 = (ClassScanner) container.getObject(ClassScanner.class);
+        System.out.println("object3 = " + object3);
 
         // TODO: write tests
     }

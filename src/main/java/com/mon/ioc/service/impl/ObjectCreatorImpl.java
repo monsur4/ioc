@@ -22,29 +22,35 @@ public class ObjectCreatorImpl implements ObjectCreator {
 
     @Override
     public Object create(ClassDefinition classDefinition) {
-        if(classDefinition.type() == ClassDefinition.TYPE.SINGLETON){
-            if (singletons.containsKey(classDefinition.fullClassName())){
-                logger.log(Level.INFO, String.format("retrieving class %s from store", classDefinition.fullClassName()));
-                return singletons.get(classDefinition.fullClassName());
-            }
-        }
-
         Object o = null;
         try {
             Class<?> clazz = Class.forName(classDefinition.fullClassName());
+            for (Map.Entry<String, Object> entry : singletons.entrySet()) {
+                Class<?> storedClass = Class.forName(entry.getKey());
+                if(clazz.isAssignableFrom(storedClass)){
+                    logger.log(Level.INFO, String.format(
+                            "retrieving class %s from store for type %s",
+                            storedClass.getCanonicalName(),
+                            clazz.getCanonicalName()
+                    ));
+                    return entry.getValue();
+                }
+            }
+
             Constructor[] constructors = clazz.getConstructors();
-            for (Constructor constructor: constructors){
-                if(constructor.getParameterCount() == 0){
+            for (Constructor constructor : constructors) {
+                if (constructor.getParameterCount() == 0) {
                     constructor.setAccessible(true);
                     logger.log(Level.INFO, String.format("creating class %s", classDefinition.fullClassName()));
                     o = constructor.newInstance();
-                    if(classDefinition.type() == ClassDefinition.TYPE.SINGLETON){
+                    if (classDefinition.type() == ClassDefinition.TYPE.SINGLETON) {
                         singletons.put(classDefinition.fullClassName(), o);
                     }
                 }
             }
 
-        } catch (ClassNotFoundException | InvocationTargetException | InstantiationException | IllegalAccessException e) {
+        } catch (ClassNotFoundException | InvocationTargetException | InstantiationException |
+                 IllegalAccessException e) {
             throw new RuntimeException(e);
         }
         return o;
